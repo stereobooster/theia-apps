@@ -3,9 +3,22 @@ FROM node:${NODE_VERSION}-stretch
 
 RUN curl -sSL https://get.haskellstack.org/ | sh
 
-RUN git clone https://github.com/haskell/haskell-ide-engine --recursive --depth 1 && \
-    cd haskell-ide-engine && \
-    stack install
+RUN addgroup --system nixbld && \
+  adduser --home /home/nix --disabled-password --gecos "" --shell /bin/bash nix && \
+  adduser nix nixbld && \
+  mkdir -m 0755 /nix && chown nix /nix && \
+  mkdir -p /etc/nix && echo 'sandbox = false' > /etc/nix/nix.conf
+
+CMD /bin/bash -l
+USER nix
+ENV USER nix
+WORKDIR /home/nix
+
+RUN touch .bash_profile && \
+  curl https://nixos.org/nix/install | sh
+
+RUN . /home/nix/.nix-profile/etc/profile.d/nix.sh && \
+  nix-env -iA hies -f https://github.com/domenkozar/hie-nix/tarball/master
 
 ARG version=latest
 
