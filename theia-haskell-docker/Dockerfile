@@ -5,7 +5,8 @@ RUN curl -sSL https://get.haskellstack.org/ | sh
 
 RUN git clone https://github.com/haskell/haskell-ide-engine --recursive --depth 1 && \
     cd haskell-ide-engine && \
-    stack install
+    stack ./install.hs hie-8.6.5 && \
+    stack ./install.hs build-doc
 
 ARG version=latest
 
